@@ -14,7 +14,7 @@
     $: date = dtf.format(post.date * 1000)
 </script>
 
-<div class="post post--{post.status}">
+<div class="post post--{post.status}" style:order={-post.date}>
     <div class="post__content">
         {#if post.attachments}
             <div class="post__attachment">
@@ -33,17 +33,22 @@
             Проверяется <Clock />
         {:else if post.status === "publish"}
             Опубликовано <CheckMark />
+        {:else if post.status === "same"}
+            Сомнительный контент <CheckMark />
         {/if}
     </div>
 </div>
 
 <style>
+    .post {
+        --color: transparent;
+    }
     .post__content {
         padding: 30px 25px;
         background-color: white;
         border-radius: 10px;
         padding-bottom: 10px;
-        border: 2px solid transparent;
+        border: 2px solid var(--color);
     }
     .post__attachment {
         margin-bottom: 1em;
@@ -63,25 +68,27 @@
         gap: 6px;
         align-items: center;
         margin-top: 6px;
+        color: var(--color);
     }
     .post__status :global(.icon) {
         font-size: 12px;
     }
-    .post--publish .post__status {
-        color: #05a573;
+    .post--publish {
+        --color: #05a573;
     }
-    .post--ban .post__status {
-        color: #f40b0b;
+    .post--ban {
+        --color: #f40b0b;
     }
-    .post--process .post__status {
-        color: #7c7c7c;
+    .post--process {
+        --color: #7c7c7c;
+    }
+    .post--same {
+        --color: #d08700;
     }
     .post--ban,
-    .post--process {
+    .post--process,
+    .post--same {
         opacity: 0.7;
-    }
-    .post--publish .post__content {
-        border-color: #05a573;
     }
     .post--process {
         animation: pulse linear 1s infinite;
