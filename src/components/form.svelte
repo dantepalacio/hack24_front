@@ -2,34 +2,30 @@
     import PaperPlane from "./icons/paper-plane.svelte"
     import Attach from "./icons/attach.svelte"
     import { post } from "../api"
+    import { getFile } from "../api/utils"
+    import Attachment from "./attachment.svelte"
+    import Cross from "./icons/cross.svelte"
 
     let text = ""
-    let sending = false
-    const onsubmit = async (event: SubmitEvent) => {
+    const onsubmit = (event: SubmitEvent) => {
         const form = event.target as HTMLFormElement
         const formData = new FormData(form)
-        sending = true
-        await post(formData)
-        form.reset()
-        sending = false
+        post(formData)
+        text = ""
+        clearFiles()
     }
     let files: FileList = [] as any
 
-    $: disabled = sending || (text.length < 1 && files.length < 1)
+    const clearFiles = () => (files = [] as any)
 
-    const readFile = (file: File) =>
-        new Promise((resolve, reject) => {
-            const fileReader = new FileReader()
-            fileReader.readAsDataURL(file)
-            fileReader.onload = (e) => resolve(e.target?.result)
-            fileReader.onerror = (e) => reject(e.target?.result)
-        })
+    $: disabled = text.length < 1 && files.length < 1
+    // TODO Проверять видео на длительность
 </script>
 
 <form on:submit|preventDefault={onsubmit}>
     <div class="input">
         <textarea
-            name=""
+            name="text"
             id=""
             rows="1"
             bind:value={text}
@@ -47,13 +43,24 @@
         {#if files.length > 0}
             <div class="files">
                 {#each files as file}
-                    <div class="file">
-                        {#await readFile(file)}
-                            Loading
-                        {:then src}
-                            <img {src} alt="" />
-                        {/await}
-                    </div>
+                    {#await getFile(file)}
+                        <div class="file file--loading">Loading</div>
+                    {:then attachment}
+                        <div class="file">
+                            <div class="file__attachment">
+                                <button on:click={clearFiles} class="delete"
+                                    ><Cross /></button
+                                >
+                                <Attachment {...attachment} />
+                            </div>
+                        </div>
+                    {:catch e}
+                        <div class="file file--error">
+                            {e instanceof Error
+                                ? e.message
+                                : "Неизвестная ошибка"}
+                        </div>
+                    {/await}
                 {/each}
             </div>
         {/if}
@@ -70,6 +77,7 @@
         gap: 19px;
         width: var(--container-width);
     }
+
     input {
         margin: 0;
         padding: 0;
@@ -83,13 +91,41 @@
         align-items: center;
         padding-inline: 13px;
     }
+    .delete {
+        position: absolute;
+        right: 0;
+        top: 0;
+        font-size: 10px;
+        color: white;
+        border-radius: 100vw;
+        background-color: #0008;
+        border: none;
+        padding: 0.6em;
+        margin: 0.5em;
+        cursor: pointer;
+    }
     .file {
         width: 100px;
         height: 100px;
         background-color: #c4c4c4;
         border-radius: 10px;
+        color: black;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
     }
-    .file img {
+    .file--error {
+        background-color: #f001;
+        color: red;
+    }
+    .file__attachment {
+        position: relative;
+        width: inherit;
+        height: inherit;
+        border-radius: inherit;
+    }
+    .file :global(.attachment) {
         display: block;
         width: inherit;
         height: inherit;
@@ -126,7 +162,6 @@
     .files {
         grid-column: 1 / -1;
         padding: 12px 15px;
-        padding-top: 0;
     }
     textarea {
         display: block;

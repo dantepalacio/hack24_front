@@ -2,16 +2,9 @@
     import Form from "./components/form.svelte"
     import ThemeSwitcher from "./components/theme-switcher.svelte"
     import Post from "./components/post.svelte"
+    import { posts } from "./api"
 
     let width = 0
-
-    const posts = [
-        {
-            date: Math.floor(Date.now() / 1000),
-            text: "Lorem ipsum dolor sit amet",
-            status: "process",
-        },
-    ]
 </script>
 
 <div class="page">
@@ -23,7 +16,7 @@
         </div>
     </header>
     <div class="container">
-        {#each posts as post}
+        {#each $posts as post}
             <Post {post} />
         {/each}
     </div>

@@ -2,6 +2,8 @@
     import Clock from "../components/icons/clock.svelte"
     import CheckMark from "../components/icons/check-mark.svelte"
     import ExclamationCircle from "../components/icons/exclamation-circle.svelte"
+    import type { Post } from "../api"
+    import Attachment from "./attachment.svelte"
 
     export let post: Post
 
@@ -9,11 +11,18 @@
         hour: "2-digit",
         minute: "2-digit",
     })
-    $: date = dtf.format(post.date)
+    $: date = dtf.format(post.date * 1000)
 </script>
 
 <div class="post post--{post.status}">
     <div class="post__content">
+        {#if post.attachments}
+            <div class="post__attachment">
+                {#each post.attachments as attachment}
+                    <Attachment {...attachment} />
+                {/each}
+            </div>
+        {/if}
         <div class="post__text">{post.text}</div>
         <div class="post__date">{date}</div>
     </div>
@@ -34,6 +43,10 @@
         background-color: white;
         border-radius: 10px;
         padding-bottom: 10px;
+        border: 2px solid transparent;
+    }
+    .post__attachment {
+        margin-bottom: 1em;
     }
     .post__text {
         word-break: break-word;
@@ -68,7 +81,7 @@
         opacity: 0.7;
     }
     .post--publish .post__content {
-        border: 2px solid #05a573;
+        border-color: #05a573;
     }
     .post--process {
         animation: pulse linear 1s infinite;
