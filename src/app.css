@@ -1,0 +1,18 @@
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: sans-serif;
+    background-color: #f5f5f5;
+    --container-width: 586px;
+    margin: 0;
+}
+
+svg.icon {
+    width: 1em;
+    height: 1em;
+    display: block;
+}
