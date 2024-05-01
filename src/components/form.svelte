@@ -16,10 +16,24 @@
     }
     let files: FileList = [] as any
 
+    let error = false
+
+    const _getFile = async (...args: Parameters<typeof getFile>) => {
+        try {
+            return await getFile(...args)
+        } catch (e) {
+            error = true
+            throw e
+        }
+    }
+
+    $: if (files) {
+        error = false
+    }
+
     const clearFiles = () => (files = [] as any)
 
-    $: disabled = text.length < 1 && files.length < 1
-    // TODO Проверять видео на длительность
+    $: disabled = (text.length < 1 && files.length < 1) || error
 </script>
 
 <form on:submit|preventDefault={onsubmit}>
@@ -43,15 +57,15 @@
         {#if files.length > 0}
             <div class="files">
                 {#each files as file}
-                    {#await getFile(file)}
+                    {#await _getFile(file)}
                         <div class="file file--loading">Loading</div>
                     {:then attachment}
                         <div class="file">
                             <div class="file__attachment">
+                                <Attachment {...attachment} />
                                 <button on:click={clearFiles} class="delete"
                                     ><Cross /></button
                                 >
-                                <Attachment {...attachment} />
                             </div>
                         </div>
                     {:catch e}
@@ -76,6 +90,7 @@
         grid-template-columns: auto max-content;
         gap: 19px;
         width: var(--container-width);
+        align-items: end;
     }
 
     input {
@@ -103,6 +118,7 @@
         padding: 0.6em;
         margin: 0.5em;
         cursor: pointer;
+        z-index: 1;
     }
     .file {
         width: 100px;
