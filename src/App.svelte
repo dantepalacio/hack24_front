@@ -2,7 +2,9 @@
     import Form from "./components/form.svelte"
     import ThemeSwitcher from "./components/theme-switcher.svelte"
     import Post from "./components/post.svelte"
-    import { posts } from "./api"
+    import { posts, fetchPosts } from "./api"
+
+    fetchPosts()
 
     let width = 0
 </script>
