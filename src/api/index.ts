@@ -49,7 +49,7 @@ export async function post(formData: FormData) {
             if (!post) return $posts
             post.status = body.status
             post.id = body.id
-            if (body.date) post.date = body.date
+            if (body.unix_timestamp) post.date = body.unix_timestamp
             return $posts
         })
     } catch (e) {
@@ -71,10 +71,11 @@ export const fetchPosts = async () => {
         const { results } = await fetch(apiPath("/get_posts_request")).then(
             (r) => r.json()
         )
+
         posts.set(
             results.map((post) => {
                 const p = {
-                    date: post.date ?? Date.now() / 1000,
+                    date: post.unix_timestamp ?? Date.now() / 1000,
                     id: post.id,
                     status: post.status,
                 } as Post
