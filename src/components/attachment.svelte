@@ -4,17 +4,15 @@
 </script>
 
 {#if type.startsWith("video")}
-    <video controls={false} muted class="attachment">
-        <source {type} {src} />
-    </video>
+    <video {...$$restProps} {src} muted class="attachment"></video>
 {:else}
-    <img {src} alt="" class="attachment" />
+    <img {src} {...$$restProps} alt="" class="attachment" />
 {/if}
 
 <style>
     .attachment {
         display: block;
-        max-width: 100%;
+        width: 100%;
         object-fit: cover;
     }
 </style>
