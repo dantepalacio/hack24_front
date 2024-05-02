@@ -58,21 +58,23 @@
                 <div class="post__text">{post.text}</div>
             {/if}
         {/if}
-        <div class="post__date">{date}</div>
-        <div class="actions">
-            {#if !post.action}
-                <button on:click={rate("like")} class="action action--like"
-                    ><Like /></button
-                >
-                <button
-                    on:click={rate("dislike")}
-                    class="action action--dislike"><Dislike /></button
-                >
-            {:else}
-                <div class="action action--{post.action} action--active">
-                    <svelte:component this={actionIcon[post.action]} />
-                </div>
-            {/if}
+        <div class="post__meta">
+            <div class="actions">
+                {#if !post.action}
+                    <button on:click={rate("like")} class="action action--like"
+                        ><Like /></button
+                    >
+                    <button
+                        on:click={rate("dislike")}
+                        class="action action--dislike"><Dislike /></button
+                    >
+                {:else}
+                    <div class="action action--{post.action} action--active">
+                        <svelte:component this={actionIcon[post.action]} />
+                    </div>
+                {/if}
+            </div>
+            <div class="post__date">{date}</div>
         </div>
     </div>
 
@@ -138,8 +140,12 @@
         white-space: pre-line;
     }
     .post__date {
-        text-align: right;
         opacity: 0.5;
+    }
+    .post__meta {
+        display: flex;
+        gap: 1em;
+        justify-content: end;
     }
     .post__status {
         display: flex;
