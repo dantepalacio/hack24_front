@@ -107,12 +107,8 @@ export const fetchPosts = async () => {
 export const posts = writable<Post[]>([])
 
 export const ratePost = async (postId: number, action: "like" | "dislike") => {
-    const form = new FormData()
-    form.append("action", action)
-    form.append("id", `${postId}`)
-    const { status } = await fetch(apiPath("/rate"), {
-        method: "POST",
-        body: form,
-    })
+    const { status } = await fetch(
+        apiPath(`/rate?id=${postId}&action=${action}`)
+    )
     return status === 200
 }
