@@ -13,6 +13,7 @@
         post(formData)
         text = ""
         clearFiles()
+        form.reset()
     }
     let files: FileList = [] as any
 
