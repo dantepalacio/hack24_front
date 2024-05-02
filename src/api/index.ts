@@ -11,6 +11,7 @@ export interface Post {
         type: string
     }[]
     id: number
+    action?: "like" | "dislike"
 }
 
 export async function post(formData: FormData) {
@@ -79,6 +80,9 @@ export const fetchPosts = async () => {
                     id: post.id,
                     status: post.status,
                 } as Post
+                if (post.action !== null) {
+                    p.action = post.action === 0 ? "dislike" : "like"
+                }
                 if (post.comment) {
                     p.text = post.comment
                 }
@@ -101,3 +105,14 @@ export const fetchPosts = async () => {
 }
 
 export const posts = writable<Post[]>([])
+
+export const ratePost = async (postId: number, action: "like" | "dislike") => {
+    const form = new FormData()
+    form.append("action", action)
+    form.append("id", `${postId}`)
+    const { status } = await fetch(apiPath("/rate"), {
+        method: "POST",
+        body: form,
+    })
+    return status === 200
+}

@@ -4,6 +4,9 @@
     import ExclamationCircle from "../components/icons/exclamation-circle.svelte"
     import type { Post } from "../api"
     import Attachment from "./attachment.svelte"
+    import Like from "./icons/like.svelte"
+    import Dislike from "./icons/dislike.svelte"
+    import { ratePost } from "../api"
 
     export let post: Post
 
@@ -12,20 +15,67 @@
         minute: "2-digit",
     })
     $: date = dtf.format(post.date * 1000)
+
+    const unblur = (e: PointerEvent) => {
+        const post = (e.target as HTMLElement).closest(".post")
+        if (!post) return
+        post.classList.add("post--unblur")
+    }
+
+    const rate = (action: "like" | "dislike") => async () => {
+        post.action = action
+        const success = await ratePost(post.id, action)
+        if (!success) post.action = undefined
+    }
+
+    const actionIcon = {
+        like: Like,
+        dislike: Dislike,
+    }
 </script>
 
-<div class="post post--{post.status}" style:order={-post.date}>
+<!-- svelte-ignore a11y-click-events-have-key-events -->
+<!-- svelte-ignore a11y-no-static-element-interactions -->
+<div
+    class="post post--{post.status}"
+    style:order={-post.date}
+    on:click={unblur}
+>
     <div class="post__content">
-        {#if post.attachments}
-            <div class="post__attachment">
-                {#each post.attachments as attachment}
-                    <Attachment {...attachment} />
-                {/each}
+        {#if post.status === "ban"}
+            <div class="post__text">
+                Данный пост содержит запрещенный контент
             </div>
+        {:else}
+            {#if post.attachments}
+                <div class="post__attachment">
+                    {#each post.attachments as attachment}
+                        <Attachment controls="true" {...attachment} />
+                    {/each}
+                </div>
+            {/if}
+            {#if post.text}
+                <div class="post__text">{post.text}</div>
+            {/if}
         {/if}
-        <div class="post__text">{post.text}</div>
         <div class="post__date">{date}</div>
+        <div class="actions">
+            {#if !post.action}
+                <button on:click={rate("like")} class="action action--like"
+                    ><Like /></button
+                >
+                <button
+                    on:click={rate("dislike")}
+                    class="action action--dislike"><Dislike /></button
+                >
+            {:else}
+                <div class="action action--{post.action} action--active">
+                    <svelte:component this={actionIcon[post.action]} />
+                </div>
+            {/if}
+        </div>
     </div>
+
     <div class="post__status">
         {#if post.status === "ban"}
             Не опубликовано <ExclamationCircle />
@@ -49,16 +99,45 @@
         border-radius: 10px;
         padding-bottom: 10px;
         border: 2px solid var(--color);
+        display: grid;
+        gap: 21px;
     }
-    .post__attachment {
-        margin-bottom: 1em;
+    .actions {
+        font-size: 1.2em;
+        display: flex;
+        gap: 0.5em;
+        justify-content: end;
+    }
+    .action {
+        margin: 0;
+        padding: 0;
+        font: inherit;
+        color: #000;
+        background-color: transparent;
+        border: none;
+        opacity: 0.5;
+    }
+    button.action {
+        cursor: pointer;
+    }
+    .action--like {
+        --color: #05a573;
+    }
+    .action--dislike {
+        --color: #f40b0b;
+    }
+    .action--active,
+    .action:hover {
+        color: var(--color);
+    }
+    .action--active {
+        opacity: 1;
     }
     .post__text {
         word-break: break-word;
         white-space: pre-line;
     }
     .post__date {
-        margin-top: 21px;
         text-align: right;
         opacity: 0.5;
     }
@@ -89,6 +168,12 @@
     .post--process,
     .post--same {
         opacity: 0.7;
+    }
+    .post--same :is(.post__text, .post__attachment) {
+        filter: blur(1em);
+    }
+    .post--unblur :is(.post__text, .post__attachment) {
+        filter: none;
     }
     .post--process {
         animation: pulse linear 1s infinite;
