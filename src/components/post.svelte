@@ -171,8 +171,7 @@
         --color: #d08700;
     }
     .post--ban,
-    .post--process,
-    .post--same {
+    .post--process {
         opacity: 0.7;
     }
     .post--same :is(.post__text, .post__attachment) {
