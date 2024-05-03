@@ -5,14 +5,25 @@
     import { getFile } from "../api/utils"
     import Attachment from "./attachment.svelte"
     import Cross from "./icons/cross.svelte"
+    import { onMount } from "svelte"
+
+    const SUBMIT_TIMEOUT = 10 * 1000
+
+    let now = Date.now()
+    onMount(() => {
+        const interval = setInterval(() => (now = Date.now()), 1000)
+        return () => clearInterval(interval)
+    })
 
     let text = ""
+    let lastSubmit = 0
     const onsubmit = (event: SubmitEvent) => {
         const form = event.target as HTMLFormElement
         const formData = new FormData(form)
         post(formData)
         text = ""
         clearFiles()
+        lastSubmit = Date.now()
         form.reset()
     }
     let files: FileList = [] as any
@@ -34,7 +45,11 @@
 
     const clearFiles = () => (files = [] as any)
 
-    $: disabled = (text.length < 1 && files.length < 1) || error
+    $: deltaTime = now - lastSubmit
+    $: disabled =
+        (text.length < 1 && files.length < 1) ||
+        error ||
+        deltaTime < SUBMIT_TIMEOUT
 </script>
 
 <form on:submit|preventDefault={onsubmit}>
@@ -81,7 +96,11 @@
         {/if}
     </div>
     <button class="button button--primary" type="submit" {disabled}>
-        <PaperPlane />
+        {#if deltaTime < SUBMIT_TIMEOUT}
+            {Math.ceil((SUBMIT_TIMEOUT - deltaTime) / 1000)}
+        {:else}
+            <PaperPlane />
+        {/if}
     </button>
 </form>
 
@@ -156,6 +175,8 @@
         display: block;
         cursor: pointer;
         aspect-ratio: 1;
+    }
+    .button :global(.icon) {
         font-size: 23px;
     }
     .button--primary {
@@ -163,6 +184,11 @@
         background-color: black;
         border-radius: 50%;
         padding: 8px;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
     .button:disabled {
         pointer-events: none;
