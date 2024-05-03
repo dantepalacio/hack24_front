@@ -50,7 +50,7 @@
             Опишите проблему
             <textarea name="text" bind:value={text} rows="10"></textarea>
         </label>
-        <button disabled={!text}>Отправить</button>
+        <button disabled={!text} class="button--submit">Отправить</button>
     </form>
 </div>
 
@@ -94,10 +94,6 @@
         margin-bottom: 1em;
         width: 100%;
     }
-    form button {
-        display: block;
-        margin-left: auto;
-    }
     .popup__content {
         background-color: white;
         border-radius: 10px;
@@ -130,5 +126,24 @@
     }
     .appellation__menu button:hover {
         background-color: #eee;
+    }
+
+    .button--submit {
+        display: block;
+        margin-left: auto;
+        background-color: black;
+        border-radius: 10px;
+        padding: 0.5em 1em;
+        border: none;
+        font: inherit;
+        color: white;
+        cursor: pointer;
+    }
+    .button--submit:hover {
+        opacity: 0.8;
+    }
+    .button--submit:disabled {
+        opacity: 0.5;
+        pointer-events: none;
     }
 </style>
