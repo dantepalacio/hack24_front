@@ -112,3 +112,14 @@ export const ratePost = async (postId: number, action: "like" | "dislike") => {
     )
     return status === 200
 }
+
+export const sendAppellation = async (postId: number, text: string) => {
+    const data = new FormData()
+    data.set("id", postId.toString())
+    data.set("text", text)
+
+    await fetch(apiPath("/send_appelation"), {
+        method: "POST",
+        body: data,
+    })
+}

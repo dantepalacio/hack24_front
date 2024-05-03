@@ -6,7 +6,9 @@
     import Attachment from "./attachment.svelte"
     import Like from "./icons/like.svelte"
     import Dislike from "./icons/dislike.svelte"
-    import { ratePost } from "../api"
+    import { ratePost, sendAppellation } from "../api"
+    import More from "./icons/more.svelte"
+    import Appellation from "./appellation.svelte"
 
     export let post: Post
 
@@ -31,6 +33,10 @@
     const actionIcon = {
         like: Like,
         dislike: Dislike,
+    }
+
+    const send = (text: string) => {
+        sendAppellation(post.id, text)
     }
 </script>
 
@@ -75,6 +81,9 @@
                 {/if}
             </div>
             <div class="post__date">{date}</div>
+            {#if post.status !== "process"}
+                <Appellation onsend={send} />
+            {/if}
         </div>
     </div>
 
@@ -146,6 +155,7 @@
         display: flex;
         gap: 1em;
         justify-content: end;
+        align-items: center;
     }
     .post__status {
         display: flex;
